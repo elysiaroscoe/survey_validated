@@ -8,10 +8,13 @@ def display_survey():
 
 @app.route('/post_survey', methods = ["POST"])
 def post_survey():
-    Dojo.submit_survey(request.form)
-    return redirect(f"/result/{id}")
+    if not Dojo.validate_survey(request.form):
+        return redirect('/')
+    new_dojo_id = Dojo.submit_survey(request.form)
+    return redirect(f"/result/{new_dojo_id}")
 
 @app.route("/result/<int:id>")
 def display_result(id):
     dojo = Dojo.get_survey({"id" : id})
+    # dojo = Dojo.get_survey({"id" : id})
     return render_template('result.html', dojo = dojo)

@@ -1,5 +1,6 @@
 # import the function that will return an instance of a connection
 from flask_app.config.mysqlconnection import connectToMySQL
+from flask import flash
 # model the class after the user table from our database
 class Dojo:
     def __init__(self, data):
@@ -13,7 +14,7 @@ class Dojo:
 
     @classmethod
     def submit_survey(cls,data):
-        query = "INSERT INTO dojos (name, location, language, comment, created_at, updated_at) VALUES (%(name)s, %(location)s, %(language)s, %(comment)s, NOW(), NOW();"
+        query = "INSERT INTO dojos (name, location, language, comment, created_at, updated_at ) VALUES (%(name)s, %(location)s, %(language)s, %(comment)s, NOW(), NOW() );"
         return connectToMySQL('survey_schema').query_db(query,data)
 
     @classmethod
@@ -22,5 +23,15 @@ class Dojo:
         results = connectToMySQL('survey_schema').query_db(query,data)
         if len(results) == 0:
             return False
-        dojo = Dojo(results[0])
-        return dojo
+        return Dojo(results[0])
+
+    staticmethod
+    def validate_survey(dojo):
+        is_valid = True #we assume this is true
+        if len(dojo['name']) <3:
+            flash ("Name must be at least 3 characters")
+            is_valid = False
+        if len(dojo['comment']) < 3:
+            flash ("You must provide a valid comment")
+            is_valid = False
+        return is_valid
